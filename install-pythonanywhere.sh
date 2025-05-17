@@ -17,7 +17,8 @@ pip install django==4.2.10 \
     requests==2.31.0 \
     whitenoise==6.5.0 \
     pytz==2023.3 \
-    sqlparse==0.4.4
+    sqlparse==0.4.4 \
+    psycopg2-binary==2.9.9
 
 # Try to install Djongo without dependencies
 echo "Installing Djongo without dependencies..."
@@ -32,9 +33,11 @@ if [ ! -f .env ]; then
 fi
 
 # Create required directories
+mkdir -p chitfunds_ledger/static
 mkdir -p chitfunds_ledger/staticfiles
 mkdir -p chitfunds_ledger/media
 
 echo "Installation complete. By default, we've configured the app to use SQLite."
 echo "To use MongoDB, edit your .env file and set USE_DJONGO=True after setting up your MongoDB connection."
+echo "To use PostgreSQL, edit your .env file and set USE_POSTGRES=True and configure the database credentials."
 echo "Run 'python test_mongodb.py' to test your MongoDB connection."

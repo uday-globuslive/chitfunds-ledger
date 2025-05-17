@@ -78,10 +78,6 @@ WSGI_APPLICATION = 'chitfunds_ledger.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# Check if USE_DJONGO environment variable is set
-# If not set or true, use Djongo; if false, use SQLite as a fallback
-USE_DJONGO = os.environ.get('USE_DJONGO', 'True').lower() == 'true'
-
 # Default to SQLite setup
 DATABASES = {
     'default': {
@@ -90,8 +86,21 @@ DATABASES = {
     }
 }
 
-# Try to use Djongo if enabled
-if USE_DJONGO:
+# PostgreSQL configuration
+if os.environ.get('USE_POSTGRES', 'False').lower() == 'true':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME', 'chitfunds_db'),
+            'USER': os.environ.get('DB_USER', 'chitfunds_user'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', 'your_password'),
+            'HOST': os.environ.get('DB_HOST', 'localhost'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
+        }
+    }
+    print("Using PostgreSQL backend.")
+# Djongo (MongoDB) configuration
+elif os.environ.get('USE_DJONGO', 'False').lower() == 'true':
     try:
         # Test if Djongo is properly installed
         import djongo
