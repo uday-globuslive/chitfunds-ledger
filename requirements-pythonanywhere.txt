@@ -5,8 +5,8 @@ crispy-bootstrap5==0.7
 djangotoolbox==1.8.0
 pymongo[srv]==4.6.1
 dnspython==2.4.2
-# Install Djongo from a forked repository with compatibility fixes
-git+https://github.com/doableware/djongo.git@djongo-2.0.0
+# Install Djongo from the repository (main branch)
+git+https://github.com/doableware/djongo.git
 pillow==10.1.0
 python-dotenv==1.0.0
 django-storages==1.14.2

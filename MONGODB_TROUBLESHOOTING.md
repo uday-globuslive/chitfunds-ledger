@@ -1,6 +1,26 @@
 # MongoDB Connection Troubleshooting Guide
 
-This guide provides solutions for common issues when connecting Django to MongoDB using Djongo.
+This guide provides solutions for common issues when connecting Django to MongoDB.
+
+## Installation Options
+
+### Option 1: Using Djongo (Default)
+
+```bash
+# Install with the main requirements
+pip install -r requirements.txt
+```
+
+### Option 2: Using Direct PyMongo
+
+If you encounter issues with Djongo, you can use direct PyMongo integration:
+
+```bash
+# Install without Djongo
+pip install -r requirements-pymongo.txt
+```
+
+Then follow the instructions in `alternative_mongodb_connection.py`.
 
 ## Common Issues and Solutions
 
@@ -11,7 +31,7 @@ This guide provides solutions for common issues when connecting Django to MongoD
 **Solution A - Use the GitHub version**:
 ```bash
 pip uninstall djongo sqlparse -y
-pip install "git+https://github.com/doableware/djongo.git@djongo-2.0.0"
+pip install "git+https://github.com/doableware/djongo.git"
 ```
 
 **Solution B - Use PyMongo directly**:
@@ -54,9 +74,14 @@ print(db.command('ping'))
 
 If you continue to have issues with Djongo, you can switch to using PyMongo directly with Django:
 
-1. Copy the `alternative_mongodb_connection.py` file to your project
-2. Update your models to use the `MongoDBModel` mixin
-3. Update your settings.py to include:
+1. Install the PyMongo-only requirements:
+   ```bash
+   pip install -r requirements-pymongo.txt
+   ```
+
+2. Copy the `alternative_mongodb_connection.py` file to your project
+3. Update your models to use the `MongoDBModel` mixin
+4. Update your settings.py to include:
 
 ```python
 DATABASES = {
@@ -73,7 +98,7 @@ DATABASES = {
 DATABASE_ROUTERS = ['your_app.alternative_mongodb_connection.MongoDBRouter']
 ```
 
-4. Modify your models to include MongoDB collection information:
+5. Modify your models to include MongoDB collection information:
 
 ```python
 from django.db import models
@@ -86,7 +111,7 @@ class YourModel(models.Model, MongoDBModel):
         mongodb_collection = 'your_collection'
 ```
 
-5. Use MongoDB-specific methods for CRUD operations:
+6. Use MongoDB-specific methods for CRUD operations:
 
 ```python
 # Create
@@ -151,3 +176,68 @@ If you continue to experience issues with Djongo, consider these alternatives:
 1. Use `pymongo` directly (see the `alternative_mongodb_connection.py` file)
 2. Use `mongoengine` as a more mature MongoDB ODM for Python
 3. Use Django with a relational database (MySQL, PostgreSQL) and consider using MongoDB only for specific features via PyMongo
+
+## Testing MongoDB Connection
+
+Here's a standalone script to test your MongoDB connection. Save it as `test_mongodb.py`:
+
+```python
+import os
+from pymongo import MongoClient
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# MongoDB Connection details
+MONGODB_URI = os.environ.get('MONGODB_URI', 'mongodb://localhost:27017')
+MONGODB_NAME = os.environ.get('MONGODB_NAME', 'chitfunds_db')
+MONGODB_USERNAME = os.environ.get('MONGODB_USERNAME', '')
+MONGODB_PASSWORD = os.environ.get('MONGODB_PASSWORD', '')
+MONGODB_AUTH_SOURCE = os.environ.get('MONGODB_AUTH_SOURCE', 'admin')
+
+print(f"Testing connection to MongoDB...")
+print(f"URI: {MONGODB_URI}")
+print(f"Database: {MONGODB_NAME}")
+
+try:
+    # Establish connection
+    if MONGODB_USERNAME and MONGODB_PASSWORD:
+        client = MongoClient(
+            MONGODB_URI,
+            username=MONGODB_USERNAME,
+            password=MONGODB_PASSWORD,
+            authSource=MONGODB_AUTH_SOURCE
+        )
+    else:
+        client = MongoClient(MONGODB_URI)
+    
+    # Test connection
+    db = client.admin
+    server_info = db.command('ping')
+    print(f"Connection successful: {server_info}")
+    
+    # Test database access
+    db = client[MONGODB_NAME]
+    collections = db.list_collection_names()
+    print(f"Available collections: {collections}")
+    
+    # Test creating a test document
+    test_collection = db['test_connection']
+    result = test_collection.insert_one({'test': 'document', 'timestamp': 'test'})
+    print(f"Created test document with ID: {result.inserted_id}")
+    
+    # Clean up
+    test_collection.delete_one({'_id': result.inserted_id})
+    print("Test document deleted")
+    
+    print("All tests passed!")
+    
+except Exception as e:
+    print(f"Connection failed: {str(e)}")
+```
+
+Run this with:
+```bash
+python test_mongodb.py
+```

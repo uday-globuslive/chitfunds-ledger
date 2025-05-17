@@ -1,12 +1,9 @@
 django==4.2.10
 django-crispy-forms==2.0
 crispy-bootstrap5==0.7
-# Use different MongoDB adapter for Django that works with newer versions
-djangotoolbox==1.8.0
-pymongo==4.6.1
+# Direct PyMongo without Djongo
+pymongo[srv]==4.6.1
 dnspython==2.4.2
-# Install Djongo from the repository (main branch)
-git+https://github.com/doableware/djongo.git
 pillow==10.1.0
 python-dotenv==1.0.0
 django-storages==1.14.2
