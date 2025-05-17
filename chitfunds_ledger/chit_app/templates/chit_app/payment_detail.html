@@ -1,0 +1,90 @@
+{% extends 'chit_app/base.html' %}
+
+{% block title %}Payment Details - ChitFunds Ledger{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'chitfund_list' %}">Chit Funds</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'chit_fund_detail' payment.chit_fund.pk %}">{{ payment.chit_fund.name }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Payment Details</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Payment Details</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">Payment Information</h5>
+                            <p class="mb-2"><strong>Chit Fund:</strong> {{ payment.chit_fund.name }}</p>
+                            <p class="mb-2"><strong>Amount:</strong> ₹{{ payment.amount|floatformat:2 }}</p>
+                            <p class="mb-2"><strong>Payment Date:</strong> {{ payment.payment_date|date:"F d, Y" }}</p>
+                            <p class="mb-2"><strong>Payment Method:</strong> {{ payment.payment_method }}</p>
+                            <p class="mb-2"><strong>Reference Number:</strong> {{ payment.reference_number|default:"--" }}</p>
+                            <p class="mb-2"><strong>Created On:</strong> {{ payment.created_at|date:"F d, Y, g:i A" }}</p>
+                            {% if payment.updated_at != payment.created_at %}
+                            <p class="mb-2"><strong>Last Updated:</strong> {{ payment.updated_at|date:"F d, Y, g:i A" }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            <h5 class="border-bottom pb-2 mb-3">Receipt</h5>
+                            {% if payment.receipt_image %}
+                            <div class="text-center">
+                                <img src="{{ payment.receipt_image.url }}" class="img-fluid img-thumbnail mb-3" alt="Payment Receipt">
+                                <p>
+                                    <a href="{{ payment.receipt_image.url }}" target="_blank" class="btn btn-info">
+                                        <i class="fas fa-external-link-alt"></i> View Full Size
+                                    </a>
+                                </p>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5 bg-light">
+                                <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                                <p>No receipt image uploaded.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                {% if payment.notes %}
+                <div class="row">
+                    <div class="col-12">
+                        <h5 class="border-bottom pb-2 mb-3">Notes</h5>
+                        <p>{{ payment.notes }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-light">
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'chit_fund_detail' payment.chit_fund.pk %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Chit Fund
+                    </a>
+                    <div>
+                        <a href="{% url 'payment_update' payment.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a href="{% url 'payment_delete' payment.pk %}" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

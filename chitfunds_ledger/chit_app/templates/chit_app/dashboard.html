@@ -1,0 +1,271 @@
+{% extends 'chit_app/base.html' %}
+
+{% block title %}Dashboard - ChitFunds Ledger{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-sm-flex align-items-center justify-content-between">
+            <h1 class="h3 mb-0">Dashboard</h1>
+            <a href="{% url 'chitfund_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> Add New Chit Fund
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Investment</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">₹ {{ total_invested|floatformat:2 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Paid</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">₹ {{ total_paid|floatformat:2 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Remaining Amount</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">₹ {{ remaining_amount|floatformat:2 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-hourglass-half fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Chit Funds List -->
+    <div class="col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Your Chit Funds</h6>
+                <a href="{% url 'chitfund_list' %}" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if chit_funds %}
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Total Amount</th>
+                                <th>Paid</th>
+                                <th>Progress</th>
+                                <th>Next Payment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for chit_fund in chit_funds %}
+                            <tr>
+                                <td><a href="{% url 'chit_fund_detail' chit_fund.id %}">{{ chit_fund.name }}</a></td>
+                                <td>₹ {{ chit_fund.total_amount|floatformat:2 }}</td>
+                                <td>₹ {{ chit_fund.total_paid|floatformat:2 }}</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" style="width: {{ chit_fund.payment_progress|floatformat:0 }}%" 
+                                            aria-valuenow="{{ chit_fund.payment_progress|floatformat:0 }}" aria-valuemin="0" aria-valuemax="100">
+                                            {{ chit_fund.payment_progress|floatformat:0 }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ chit_fund.next_payment_date|date:"M d, Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center my-4">
+                    <p>You haven't added any chit funds yet.</p>
+                    <a href="{% url 'chitfund_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i> Add Your First Chit Fund
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Payments -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Payments</h6>
+            </div>
+            <div class="card-body">
+                {% if recent_payments %}
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Chit Fund</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Method</th>
+                                <th>Receipt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in recent_payments %}
+                            <tr>
+                                <td><a href="{% url 'chit_fund_detail' payment.chit_fund.id %}">{{ payment.chit_fund.name }}</a></td>
+                                <td>₹ {{ payment.amount|floatformat:2 }}</td>
+                                <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                                <td>{{ payment.payment_method }}</td>
+                                <td>
+                                    {% if payment.receipt_image %}
+                                    <a href="{{ payment.receipt_image.url }}" target="_blank" class="btn btn-sm btn-info">
+                                        <i class="fas fa-file-image"></i> View
+                                    </a>
+                                    {% else %}
+                                    <span class="text-muted">No receipt</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center my-4">No payment records found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-lg-4">
+        <!-- Notifications -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Notifications</h6>
+                <a href="{% url 'notification_list' %}" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="card-body">
+                {% if notifications %}
+                <div class="list-group">
+                    {% for notification in notifications %}
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ notification.title }}</h6>
+                            <small>{{ notification.created_at|timesince }} ago</small>
+                        </div>
+                        <p class="mb-1">{{ notification.message }}</p>
+                        <a href="{% url 'mark_notification_read' notification.id %}" class="small text-primary">Mark as read</a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-center my-4">No new notifications.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Payment Progress Chart -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Payment Progress</h6>
+            </div>
+            <div class="card-body">
+                {% if chit_funds %}
+                <canvas id="paymentProgressChart"></canvas>
+                {% else %}
+                <p class="text-center my-4">No data available for chart.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if chit_funds %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('paymentProgressChart').getContext('2d');
+        const chartData = {
+            labels: [
+                {% for chit_fund in chit_funds|slice:":5" %}
+                '{{ chit_fund.name }}',
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Paid (%)',
+                data: [
+                    {% for chit_fund in chit_funds|slice:":5" %}
+                    {{ chit_fund.payment_progress|floatformat:0 }},
+                    {% endfor %}
+                ],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(75, 192, 192, 0.5)',
+                    'rgba(153, 102, 255, 0.5)',
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                ],
+                borderWidth: 1
+            }]
+        };
+        
+        const myChart = new Chart(ctx, {
+            type: 'bar',
+            data: chartData,
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.raw + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}

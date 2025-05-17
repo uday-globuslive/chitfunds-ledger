@@ -1,0 +1,125 @@
+{% extends 'chit_app/base.html' %}
+
+{% block title %}ChitFunds Ledger - Track Your Chit Funds{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold">Track Your Chit Funds Easily</h1>
+            <p class="lead mb-4">Manage all your chit fund investments in one place. Keep track of payments, upload receipts, and never miss a payment date.</p>
+            <div class="d-grid gap-2 d-sm-flex">
+                {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg px-4 gap-3">Go to Dashboard</a>
+                {% else %}
+                <a href="{% url 'account_login' %}" class="btn btn-primary btn-lg px-4 gap-3">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-outline-secondary btn-lg px-4">Register</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-lg-6 text-center">
+            <img src="/static/chit_app/img/dashboard-preview.png" class="img-fluid rounded shadow-lg" alt="Dashboard Preview" onerror="this.onerror=null; this.src='https://placehold.co/600x400?text=ChitFunds+Ledger'">
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <h2 class="fw-bold mb-4">Features</h2>
+        </div>
+    </div>
+    
+    <div class="row g-4 py-3">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-money-bill-wave fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Track Multiple Chit Funds</h5>
+                    <p class="card-text">Manage all your chit fund investments in one place with detailed information and payment history.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-receipt fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Upload Payment Receipts</h5>
+                    <p class="card-text">Store payment receipts securely for each payment and access them anytime you need proof of payment.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-bell fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Payment Reminders</h5>
+                    <p class="card-text">Get notified about upcoming payment dates so you never miss a payment for your chit funds.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <h2 class="fw-bold mb-4">How It Works</h2>
+        </div>
+    </div>
+    
+    <div class="row g-4 py-3">
+        <div class="col-md-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <h3 class="mb-0">1</h3>
+                    </div>
+                    <h5 class="card-title">Register</h5>
+                    <p class="card-text">Create an account and get it approved by the administrator or confirm your email.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <h3 class="mb-0">2</h3>
+                    </div>
+                    <h5 class="card-title">Add Chit Funds</h5>
+                    <p class="card-text">Add details of your chit funds including total amount, duration, and monthly payments.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <h3 class="mb-0">3</h3>
+                    </div>
+                    <h5 class="card-title">Record Payments</h5>
+                    <p class="card-text">Record your payments with dates, payment methods, and upload receipt images.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <h3 class="mb-0">4</h3>
+                    </div>
+                    <h5 class="card-title">Track Progress</h5>
+                    <p class="card-text">Monitor your payment progress, history, and get insights on your investments.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <p class="lead">Ready to organize your chit fund investments?</p>
+            {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg px-4">Go to Dashboard</a>
+            {% else %}
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-4">Get Started</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

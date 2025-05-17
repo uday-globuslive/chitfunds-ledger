@@ -1,0 +1,95 @@
+{% extends 'chit_app/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    {% if form.instance.pk %}
+    Edit Payment - ChitFunds Ledger
+    {% else %}
+    Add New Payment - ChitFunds Ledger
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'chitfund_list' %}">Chit Funds</a></li>
+                <li class="breadcrumb-item">
+                    {% if form.instance.pk %}
+                    <a href="{% url 'chit_fund_detail' form.instance.chit_fund.pk %}">{{ form.instance.chit_fund.name }}</a>
+                    {% else %}
+                    <a href="{% url 'chit_fund_detail' chit_fund.pk %}">{{ chit_fund.name }}</a>
+                    {% endif %}
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {% if form.instance.pk %}
+                    Edit Payment
+                    {% else %}
+                    Add Payment
+                    {% endif %}
+                </li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    {% if form.instance.pk %}
+                    Edit Payment
+                    {% else %}
+                    Add New Payment for {{ chit_fund.name }}
+                    {% endif %}
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form.amount|as_crispy_field }}
+                            {{ form.payment_date|as_crispy_field }}
+                            {{ form.payment_method|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.reference_number|as_crispy_field }}
+                            {{ form.receipt_image|as_crispy_field }}
+                            {{ form.notes|as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary">
+                                {% if form.instance.pk %}
+                                Update Payment
+                                {% else %}
+                                Add Payment
+                                {% endif %}
+                            </button>
+                            {% if form.instance.pk %}
+                            <a href="{% url 'chit_fund_detail' form.instance.chit_fund.pk %}" class="btn btn-secondary">Cancel</a>
+                            {% else %}
+                            <a href="{% url 'chit_fund_detail' chit_fund.pk %}" class="btn btn-secondary">Cancel</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            {% if form.instance.pk %}
+            <div class="card-footer bg-light">
+                <div class="text-end">
+                    <a href="{% url 'payment_delete' form.instance.pk %}" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash"></i> Delete Payment
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

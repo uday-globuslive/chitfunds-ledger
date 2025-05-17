@@ -1,0 +1,86 @@
+{% extends 'chit_app/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    {% if form.instance.pk %}
+    Edit Chit Fund - ChitFunds Ledger
+    {% else %}
+    Add New Chit Fund - ChitFunds Ledger
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'chitfund_list' %}">Chit Funds</a></li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {% if form.instance.pk %}
+                    Edit {{ form.instance.name }}
+                    {% else %}
+                    Add New Chit Fund
+                    {% endif %}
+                </li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    {% if form.instance.pk %}
+                    Edit Chit Fund Details
+                    {% else %}
+                    Add New Chit Fund
+                    {% endif %}
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ form.name|as_crispy_field }}
+                            {{ form.total_amount|as_crispy_field }}
+                            {{ form.duration_months|as_crispy_field }}
+                            {{ form.monthly_amount|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ form.organizer|as_crispy_field }}
+                            {{ form.start_date|as_crispy_field }}
+                            {{ form.end_date|as_crispy_field }}
+                            {{ form.description|as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary">
+                                {% if form.instance.pk %}
+                                Update Chit Fund
+                                {% else %}
+                                Add Chit Fund
+                                {% endif %}
+                            </button>
+                            <a href="{% url 'chitfund_list' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            {% if form.instance.pk %}
+            <div class="card-footer bg-light">
+                <div class="text-end">
+                    <a href="{% url 'chitfund_delete' form.instance.pk %}" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash"></i> Delete Chit Fund
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

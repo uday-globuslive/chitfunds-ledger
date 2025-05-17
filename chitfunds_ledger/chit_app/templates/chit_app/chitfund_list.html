@@ -1,0 +1,77 @@
+{% extends 'chit_app/base.html' %}
+
+{% block title %}My Chit Funds - ChitFunds Ledger{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex align-items-center justify-content-between">
+            <h1 class="h3 mb-0">My Chit Funds</h1>
+            <a href="{% url 'chitfund_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> Add New Chit Fund
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if chit_funds %}
+<div class="row">
+    {% for chit_fund in chit_funds %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-truncate">{{ chit_fund.name }}</h5>
+                <span class="badge bg-light text-dark">{{ chit_fund.duration_months }} months</span>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <p class="mb-1"><strong>Total Amount:</strong> ₹{{ chit_fund.total_amount|floatformat:2 }}</p>
+                    <p class="mb-1"><strong>Monthly Contribution:</strong> ₹{{ chit_fund.monthly_amount|floatformat:2 }}</p>
+                    <p class="mb-1"><strong>Organizer:</strong> {{ chit_fund.organizer|default:"Not specified" }}</p>
+                    <p class="mb-1"><strong>Duration:</strong> {{ chit_fund.start_date|date:"M d, Y" }} to {{ chit_fund.end_date|date:"M d, Y" }}</p>
+                </div>
+                
+                <div class="progress mb-2">
+                    <div class="progress-bar progress-bar-striped" role="progressbar" 
+                        style="width: {{ chit_fund.payment_progress|floatformat:0 }}%" 
+                        aria-valuenow="{{ chit_fund.payment_progress|floatformat:0 }}" 
+                        aria-valuemin="0" aria-valuemax="100">
+                        {{ chit_fund.payment_progress|floatformat:0 }}%
+                    </div>
+                </div>
+                <p class="small text-muted mb-0">
+                    <strong>Paid:</strong> ₹{{ chit_fund.total_paid|floatformat:2 }} of ₹{{ chit_fund.total_amount|floatformat:2 }}
+                </p>
+            </div>
+            <div class="card-footer bg-light d-flex justify-content-between align-items-center">
+                <span class="small text-muted">Next payment: {{ chit_fund.next_payment_date|date:"M d, Y" }}</span>
+                <div>
+                    <a href="{% url 'chit_fund_detail' chit_fund.id %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                    <a href="{% url 'chitfund_update' chit_fund.id %}" class="btn btn-sm btn-warning">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-money-bill-wave fa-5x text-muted mb-3"></i>
+                <h4>You don't have any chit funds yet</h4>
+                <p class="lead">Start tracking your chit fund investments by adding your first chit fund.</p>
+                <a href="{% url 'chitfund_create' %}" class="btn btn-primary btn-lg mt-3">
+                    <i class="fas fa-plus-circle"></i> Add Your First Chit Fund
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
