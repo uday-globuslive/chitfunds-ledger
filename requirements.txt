@@ -1,10 +1,12 @@
 django==4.2.10
 django-crispy-forms==2.0
 crispy-bootstrap5==0.7
-# Use a fork of djongo compatible with newer Django
-git+https://github.com/nesdis/djongo.git@master
+# Use different MongoDB adapter for Django that works with newer versions
+djangotoolbox==1.8.0
 pymongo==4.6.1
-sqlparse==0.4.4  # Explicitly set sqlparse to a version compatible with both
+dnspython==2.4.2
+# Install Djongo from a forked repository with compatibility fixes
+git+https://github.com/doableware/djongo.git@djongo-2.0.0
 pillow==10.1.0
 python-dotenv==1.0.0
 django-storages==1.14.2

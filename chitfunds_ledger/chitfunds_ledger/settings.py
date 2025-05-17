@@ -80,13 +80,23 @@ DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': os.environ.get('MONGODB_NAME', 'chitfunds_db'),
+        'ENFORCE_SCHEMA': False,
         'CLIENT': {
             'host': os.environ.get('MONGODB_URI', 'mongodb://localhost:27017'),
             'username': os.environ.get('MONGODB_USERNAME', ''),
             'password': os.environ.get('MONGODB_PASSWORD', ''),
             'authSource': os.environ.get('MONGODB_AUTH_SOURCE', 'admin'),
             'authMechanism': 'SCRAM-SHA-1',
-        }
+        },
+        'LOGGING': {
+            'version': 1,
+            'loggers': {
+                'djongo': {
+                    'level': 'DEBUG',
+                    'propagate': False,
+                }
+            },
+        },
     }
 }
 
