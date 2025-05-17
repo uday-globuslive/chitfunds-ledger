@@ -17,13 +17,52 @@ A Django-based web application for tracking and managing chit fund investments. 
 ## Technology Stack
 
 - Django 4.2.10
-- MongoDB (using Djongo ORM or direct PyMongo)
+- Database options:
+  - SQLite (default and recommended)
+  - MongoDB (using Djongo ORM or direct PyMongo)
+  - PostgreSQL (for production)
 - Bootstrap 5
 - Chart.js for data visualization
 - Django Allauth for authentication
 - Crispy Forms for form styling
 
-## Setup Instructions
+## Quick Start Setup (SQLite)
+
+The easiest way to get started is using SQLite:
+
+1. Clone the repository:
+   ```
+   git clone <repository-url>
+   cd chitfunds_ledger
+   ```
+
+2. Create a virtual environment and activate it:
+   ```
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Run the SQLite setup script:
+   ```
+   chmod +x force_sqlite.py
+   ./force_sqlite.py
+   ```
+
+4. Install dependencies:
+   ```
+   chmod +x install.sh
+   ./install.sh
+   ```
+
+5. Run the commands script for database setup and server start:
+   ```
+   chmod +x commands.sh
+   ./commands.sh
+   ```
+
+6. Visit http://127.0.0.1:8000/ in your browser
+
+## Detailed Setup Instructions
 
 ### Local Development Setup
 
@@ -45,11 +84,6 @@ A Django-based web application for tracking and managing chit fund investments. 
    ./install.sh
    ```
 
-   If you encounter issues with Djongo, you can try the direct PyMongo approach:
-   ```
-   pip install -r requirements-pymongo.txt
-   ```
-
 4. Create a `.env` file based on `.env.example` and set your environment variables:
    ```
    # Create a .env file
@@ -67,31 +101,57 @@ A Django-based web application for tracking and managing chit fund investments. 
    python chitfunds_ledger/manage.py createsuperuser
    ```
 
-7. Run the development server:
+7. Collect static files:
+   ```
+   python chitfunds_ledger/manage.py collectstatic
+   ```
+
+8. Run the development server:
    ```
    python chitfunds_ledger/manage.py runserver
    ```
 
-8. Visit http://127.0.0.1:8000/ in your browser
+9. Visit http://127.0.0.1:8000/ in your browser
 
-### MongoDB Connection
+## Database Options
+
+### SQLite (Default and Recommended)
+
+The application is configured to use SQLite by default. This is suitable for development and small deployments.
+
+To ensure SQLite is used:
+```
+./force_sqlite.py
+```
+
+### MongoDB (via Djongo)
+
+To use MongoDB:
+
+1. Set up a MongoDB instance (locally or using MongoDB Atlas)
+2. Edit the `.env` file and set `USE_DJONGO=True`
+3. Configure the MongoDB connection parameters in the `.env` file
 
 You can test your MongoDB connection before running the application:
-
 ```bash
 python test_mongodb.py
 ```
 
 If you encounter issues connecting to MongoDB, refer to the `MONGODB_TROUBLESHOOTING.md` file for detailed solutions.
 
-### Switching Between MongoDB Connection Methods
+#### Alternative MongoDB Connection
 
-The application supports two ways of connecting to MongoDB:
+If you encounter issues with Djongo compatibility, you can use the alternative direct MongoDB connection provided in `alternative_mongodb_connection.py`.
 
-1. **Djongo ORM** (default): Set `USE_DJONGO=True` in your `.env` file
-2. **Direct PyMongo**: Set `USE_DJONGO=False` in your `.env` file
+### PostgreSQL (Recommended for Production)
 
-### Email Configuration
+For production use, PostgreSQL is recommended:
+
+1. Set up a PostgreSQL database
+2. Edit the `.env` file and set `USE_POSTGRES=True`
+3. Configure the PostgreSQL connection parameters in the `.env` file
+
+## Email Configuration
 
 For email functionality (account verification, approvals), configure the email settings in your `.env` file. For Gmail, you might need to create an App Password if you have 2FA enabled.
 
@@ -154,7 +214,7 @@ For email functionality (account verification, approvals), configure the email s
 
 9. Reload the web app from the PythonAnywhere dashboard
 
-For more detailed deployment instructions, refer to `setup-pythonanywhere.md`.
+For more detailed deployment instructions, refer to `setup-pythonanywhere.md` and `DEPLOYMENT.md`.
 
 ## Troubleshooting
 
@@ -164,6 +224,8 @@ If you encounter issues:
 2. Review the application logs in `chitfunds_ledger/debug.log`
 3. Ensure your MongoDB connection is working by running `python test_mongodb.py`
 4. If Djongo causes issues, try setting `USE_DJONGO=False` in your `.env` file
+5. Run `./force_sqlite.py` to reset to SQLite configuration
+6. Check if all required directories exist (static, media, staticfiles)
 
 ## License
 
