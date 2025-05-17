@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -79,44 +80,58 @@ WSGI_APPLICATION = 'chitfunds_ledger.wsgi.application'
 
 # Check if USE_DJONGO environment variable is set
 # If not set or true, use Djongo; if false, use SQLite as a fallback
-USE_DJONGO = os.environ.get('USE_DJONGO', 'True').lower() != 'false'
+USE_DJONGO = os.environ.get('USE_DJONGO', 'True').lower() == 'true'
 
+# Default to SQLite setup
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+# Try to use Djongo if enabled
 if USE_DJONGO:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'djongo',
-            'NAME': os.environ.get('MONGODB_NAME', 'chitfunds_db'),
-            'ENFORCE_SCHEMA': False,
-            'CLIENT': {
-                'host': os.environ.get('MONGODB_URI', 'mongodb://localhost:27017'),
-                'username': os.environ.get('MONGODB_USERNAME', ''),
-                'password': os.environ.get('MONGODB_PASSWORD', ''),
-                'authSource': os.environ.get('MONGODB_AUTH_SOURCE', 'admin'),
-                'authMechanism': 'SCRAM-SHA-1',
-            },
-            'LOGGING': {
-                'version': 1,
-                'loggers': {
-                    'djongo': {
-                        'level': 'DEBUG',
-                        'propagate': False,
-                    }
-                },
-            },
-        }
-    }
-else:
-    # Fallback to SQLite if Djongo is not available or disabled
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-    
-    # If the alternative_mongodb_connection.py is in the Python path
-    # Import and use it for direct MongoDB access
     try:
+        # Test if Djongo is properly installed
+        import djongo
+        
+        # Set up Djongo connection
+        DATABASES = {
+            'default': {
+                'ENGINE': 'djongo',
+                'NAME': os.environ.get('MONGODB_NAME', 'chitfunds_db'),
+                'ENFORCE_SCHEMA': False,
+                'CLIENT': {
+                    'host': os.environ.get('MONGODB_URI', 'mongodb://localhost:27017'),
+                    'username': os.environ.get('MONGODB_USERNAME', ''),
+                    'password': os.environ.get('MONGODB_PASSWORD', ''),
+                    'authSource': os.environ.get('MONGODB_AUTH_SOURCE', 'admin'),
+                    'authMechanism': 'SCRAM-SHA-1',
+                },
+                'LOGGING': {
+                    'version': 1,
+                    'loggers': {
+                        'djongo': {
+                            'level': 'DEBUG',
+                            'propagate': False,
+                        }
+                    },
+                },
+            }
+        }
+        print("Using Djongo backend for MongoDB connection.")
+    except (ImportError, ModuleNotFoundError) as e:
+        # Fall back to SQLite if Djongo is not available
+        print(f"Djongo import failed: {e}. Falling back to SQLite.")
+        logging.warning(f"Djongo import failed: {e}. Falling back to SQLite.")
+else:
+    print("Using SQLite backend per configuration.")
+
+# If using SQLite but want direct MongoDB access, set up the alternative connection
+if DATABASES['default']['ENGINE'] == 'django.db.backends.sqlite3':
+    try:
+        # Add parent directory to path to find alternative_mongodb_connection.py
         sys.path.append(str(Path(BASE_DIR).parent))
         from alternative_mongodb_connection import MongoDBRouter
         
@@ -128,8 +143,9 @@ else:
         
         # Add the MongoDB router
         DATABASE_ROUTERS = ['alternative_mongodb_connection.MongoDBRouter']
-    except ImportError:
-        pass
+        print("Configured alternative direct MongoDB connection with router.")
+    except ImportError as e:
+        print(f"Alternative MongoDB connection setup failed: {e}")
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
