@@ -22,7 +22,7 @@ USE_POSTGRES=False
 # Security settings
 SECRET_KEY=django-insecure-secret-key-for-development-only
 DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
+ALLOWED_HOSTS=localhost,127.0.0.1,*
 
 # MongoDB settings (not used with SQLite)
 MONGODB_NAME=chitfunds_db
@@ -71,8 +71,9 @@ python chitfunds_ledger/manage.py createsuperuser
 # Collect static files
 python chitfunds_ledger/manage.py collectstatic --noinput
 
-# Run development server
-python chitfunds_ledger/manage.py runserver
+# Run development server on all network interfaces (0.0.0.0) with port 8000
+# This allows connections from other machines on the network
+python chitfunds_ledger/manage.py runserver 0.0.0.0:8000
 """)
     os.chmod(script_dir / 'commands.sh', 0o755)
     print("Created commands.sh with quick-start commands.")

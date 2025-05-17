@@ -13,5 +13,6 @@ python chitfunds_ledger/manage.py createsuperuser
 # Collect static files
 python chitfunds_ledger/manage.py collectstatic --noinput
 
-# Run development server
-python chitfunds_ledger/manage.py runserver
+# Run development server on all network interfaces (0.0.0.0) with port 8000
+# This allows connections from other machines on the network
+python chitfunds_ledger/manage.py runserver 0.0.0.0:8000
