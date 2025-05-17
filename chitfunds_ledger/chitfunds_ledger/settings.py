@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -76,29 +77,59 @@ WSGI_APPLICATION = 'chitfunds_ledger.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'djongo',
-        'NAME': os.environ.get('MONGODB_NAME', 'chitfunds_db'),
-        'ENFORCE_SCHEMA': False,
-        'CLIENT': {
-            'host': os.environ.get('MONGODB_URI', 'mongodb://localhost:27017'),
-            'username': os.environ.get('MONGODB_USERNAME', ''),
-            'password': os.environ.get('MONGODB_PASSWORD', ''),
-            'authSource': os.environ.get('MONGODB_AUTH_SOURCE', 'admin'),
-            'authMechanism': 'SCRAM-SHA-1',
-        },
-        'LOGGING': {
-            'version': 1,
-            'loggers': {
-                'djongo': {
-                    'level': 'DEBUG',
-                    'propagate': False,
-                }
+# Check if USE_DJONGO environment variable is set
+# If not set or true, use Djongo; if false, use SQLite as a fallback
+USE_DJONGO = os.environ.get('USE_DJONGO', 'True').lower() != 'false'
+
+if USE_DJONGO:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'djongo',
+            'NAME': os.environ.get('MONGODB_NAME', 'chitfunds_db'),
+            'ENFORCE_SCHEMA': False,
+            'CLIENT': {
+                'host': os.environ.get('MONGODB_URI', 'mongodb://localhost:27017'),
+                'username': os.environ.get('MONGODB_USERNAME', ''),
+                'password': os.environ.get('MONGODB_PASSWORD', ''),
+                'authSource': os.environ.get('MONGODB_AUTH_SOURCE', 'admin'),
+                'authMechanism': 'SCRAM-SHA-1',
             },
-        },
+            'LOGGING': {
+                'version': 1,
+                'loggers': {
+                    'djongo': {
+                        'level': 'DEBUG',
+                        'propagate': False,
+                    }
+                },
+            },
+        }
     }
-}
+else:
+    # Fallback to SQLite if Djongo is not available or disabled
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+    
+    # If the alternative_mongodb_connection.py is in the Python path
+    # Import and use it for direct MongoDB access
+    try:
+        sys.path.append(str(Path(BASE_DIR).parent))
+        from alternative_mongodb_connection import MongoDBRouter
+        
+        # Add a dummy MongoDB database for the router
+        DATABASES['mongodb'] = {
+            'ENGINE': 'django.db.backends.dummy',
+            'NAME': os.environ.get('MONGODB_NAME', 'chitfunds_db'),
+        }
+        
+        # Add the MongoDB router
+        DATABASE_ROUTERS = ['alternative_mongodb_connection.MongoDBRouter']
+    except ImportError:
+        pass
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -171,3 +202,42 @@ CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'debug.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'djongo': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'pymongo': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'chit_app': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}

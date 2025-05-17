@@ -17,7 +17,7 @@ A Django-based web application for tracking and managing chit fund investments. 
 ## Technology Stack
 
 - Django 4.2.10
-- MongoDB (using Djongo ORM)
+- MongoDB (using Djongo ORM or direct PyMongo)
 - Bootstrap 5
 - Chart.js for data visualization
 - Django Allauth for authentication
@@ -39,12 +39,23 @@ A Django-based web application for tracking and managing chit fund investments. 
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. Install dependencies:
+3. Install dependencies using the install script (handles dependency conflicts):
    ```
-   pip install -r requirements.txt
+   chmod +x install.sh
+   ./install.sh
    ```
 
-4. Create a `.env` file based on `.env.example` and set your environment variables
+   If you encounter issues with Djongo, you can try the direct PyMongo approach:
+   ```
+   pip install -r requirements-pymongo.txt
+   ```
+
+4. Create a `.env` file based on `.env.example` and set your environment variables:
+   ```
+   # Create a .env file
+   cp .env.example .env
+   # Edit the .env file with your specific settings
+   ```
 
 5. Migrate the database:
    ```
@@ -63,14 +74,22 @@ A Django-based web application for tracking and managing chit fund investments. 
 
 8. Visit http://127.0.0.1:8000/ in your browser
 
-### MongoDB Setup
+### MongoDB Connection
 
-1. Sign up for a MongoDB Atlas account at https://www.mongodb.com/cloud/atlas
-2. Create a new cluster
-3. In the "Security" tab, create a database user with read and write privileges
-4. In the "Network Access" tab, add your IP address or allow access from anywhere
-5. In the "Databases" tab, click "Connect" and choose "Connect your application"
-6. Copy the connection string and update it in your `.env` file
+You can test your MongoDB connection before running the application:
+
+```bash
+python test_mongodb.py
+```
+
+If you encounter issues connecting to MongoDB, refer to the `MONGODB_TROUBLESHOOTING.md` file for detailed solutions.
+
+### Switching Between MongoDB Connection Methods
+
+The application supports two ways of connecting to MongoDB:
+
+1. **Djongo ORM** (default): Set `USE_DJONGO=True` in your `.env` file
+2. **Direct PyMongo**: Set `USE_DJONGO=False` in your `.env` file
 
 ### Email Configuration
 
@@ -90,7 +109,8 @@ For email functionality (account verification, approvals), configure the email s
    ```
    python -m venv venv
    source venv/bin/activate
-   pip install -r requirements-pythonanywhere.txt
+   chmod +x install-pythonanywhere.sh
+   ./install-pythonanywhere.sh
    ```
 
 4. Create a `.env` file with your production settings
@@ -104,6 +124,11 @@ For email functionality (account verification, approvals), configure the email s
    ```python
    import os
    import sys
+   from dotenv import load_dotenv
+
+   # Load environment variables
+   project_folder = os.path.expanduser('~/chitfunds_ledger')
+   load_dotenv(os.path.join(project_folder, '.env'))
 
    # Add your project directory to the sys.path
    path = '/home/yourusername/chitfunds_ledger'
@@ -112,11 +137,6 @@ For email functionality (account verification, approvals), configure the email s
 
    # Set environment variables
    os.environ['DJANGO_SETTINGS_MODULE'] = 'chitfunds_ledger.settings'
-
-   # Activate virtual environment
-   activate_this = os.path.join('/home/yourusername/chitfunds_ledger/venv/bin/activate_this.py')
-   with open(activate_this) as file_:
-       exec(file_.read(), dict(__file__=activate_this))
 
    # Import Django WSGI handler
    from django.core.wsgi import get_wsgi_application
@@ -133,6 +153,17 @@ For email functionality (account verification, approvals), configure the email s
    ```
 
 9. Reload the web app from the PythonAnywhere dashboard
+
+For more detailed deployment instructions, refer to `setup-pythonanywhere.md`.
+
+## Troubleshooting
+
+If you encounter issues:
+
+1. Check the `MONGODB_TROUBLESHOOTING.md` file for MongoDB-specific issues
+2. Review the application logs in `chitfunds_ledger/debug.log`
+3. Ensure your MongoDB connection is working by running `python test_mongodb.py`
+4. If Djongo causes issues, try setting `USE_DJONGO=False` in your `.env` file
 
 ## License
 
